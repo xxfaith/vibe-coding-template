@@ -1,0 +1,202 @@
+<import name="task-item" src="/common/components/TaskItem.ux"></import>
+
+<template>
+  <div class="page">
+    <text class="title">My Tasks</text>
+
+    <scroll class="list">
+      <scroll
+        for="item in items"
+        class="swipe-row"
+        bounces="end"
+        scroll-snap="edge"
+      >
+        <task-item
+          :id="item.id"
+          :title="item.title"
+          :subtitle="item.description"
+          :time="item.timeStr"
+          :done="item.done"
+          on:click="openDetail(item)"
+        />
+        <div class="delete-btn" on:click="deleteItem(item)">
+          <text class="delete-text">×</text>
+        </div>
+      </scroll>
+      <div class="placeholder" />
+    </scroll>
+  </div>
+  <div class="footer">
+    <text class="add-btn" on:click="addItem">+ New Task</text>
+  </div>
+</template>
+
+<style>
+.page {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.title {
+  font-size: 1.4rem;
+  color: #ffffff;
+  font-weight: bold;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.list {
+  flex: 1;
+}
+
+/* Using the page's default stack layout to position the add button at the bottom.
+   This approach allows the button to float above the content without affecting the list. */
+.footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 20px;
+}
+
+.add-btn {
+  background-color: #e94560;
+  color: #ffffff;
+  font-size: 0.9rem;
+  border-radius: 20px;
+  padding: 10px 24px;
+  text-align: center;
+}
+
+.swipe-row {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 10px;
+}
+
+.delete-btn {
+  width: 72px;
+  background-color: #e94560;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.delete-text {
+  color: #ffffff;
+  font-size: 0.85rem;
+  text-align: center;
+  min-width: 4rem;
+}
+
+.placeholder {
+  height: 20%; /* Extra space at bottom of list */
+}
+</style>
+
+<script lang="ts">
+import { defineComponent } from 'glyphix'
+import router from '@system.router'
+import storage from '@system.storage'
+import { formatTime } from '/common/utils'
+
+interface TaskItem {
+  id: number
+  title: string
+  description: string
+  done: boolean
+  createdAt: number
+  timeStr: string
+}
+
+let nextId = 100
+
+export default defineComponent({
+  data: {
+    items: [] as TaskItem[],
+  },
+
+  onInit() {
+    this.loadItems()
+  },
+
+  onShow() {
+    // Refresh list whenever we return to this page
+    this.loadItems()
+  },
+
+  loadItems() {
+    const saved = storage.get('tasks') as TaskItem[] | undefined
+    if (saved && saved.length > 0) {
+      this.items = saved.map(item => ({
+        ...item,
+        timeStr: formatTime(item.createdAt),
+      }))
+    } else {
+      // Seed with demo data on first launch
+      const now = Date.now()
+      this.items = [
+        { id: 1, title: 'Read the docs', description: 'Go through the Glyphix quick-start guide.', done: true, createdAt: now - 3600000, timeStr: formatTime(now - 3600000) },
+        { id: 2, title: 'Build a widget', description: 'Create a reusable Card component.', done: false, createdAt: now - 1800000, timeStr: formatTime(now - 1800000) },
+        { id: 3, title: 'Deploy to device', description: 'Flash and test on the target hardware.', done: false, createdAt: now, timeStr: formatTime(now) },
+      ]
+      this.saveItems()
+    }
+  },
+
+  saveItems() {
+    storage.set('tasks', this.items)
+  },
+
+  async openDetail(item: TaskItem) {
+    // Push Detail page and wait for returned result (e.g. updated done state)
+    const result = await router.push({
+      uri: 'pages/Detail',
+      params: {
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        done: item.done,
+      },
+    })
+
+    if (result && typeof result.done === 'boolean') {
+      const index = this.items.findIndex(x => x.id === item.id)
+      if (index === -1) return; // Item might have been deleted
+      this.items[index] = {
+        ...this.items[index],
+        done: result.done as boolean,
+      }
+      this.saveItems()
+    }
+  },
+
+  deleteItem(item: TaskItem) {
+    this.items = this.items.filter(x => x.id !== item.id)
+    this.saveItems()
+  },
+
+  async addItem() {
+    // Open the Add page and wait for result
+    const result = await router.push({ uri: 'pages/Add' })
+
+    if (result && result.saved) {
+      const now = Date.now()
+      const newItem: TaskItem = {
+        id: nextId++,
+        title: result.title,
+        description: result.description || '',
+        done: false,
+        createdAt: now,
+        timeStr: formatTime(now),
+      }
+      this.items = [newItem, ...this.items]
+      this.saveItems()
+    }
+  },
+})
+</script>

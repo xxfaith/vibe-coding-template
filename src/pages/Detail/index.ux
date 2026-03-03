@@ -1,0 +1,154 @@
+<template>
+  <div class="page">
+    <div class="header">
+      <text class="back-btn" on:click="goBack">‹</text>
+      <text class="header-title">Task Detail</text>
+    </div>
+
+    <div class="card">
+      <text class="task-title">{{ title }}</text>
+      <text class="task-desc">{{ description }}</text>
+    </div>
+
+    <div class="status-row">
+      <text class="status-label">Status</text>
+      <text class="status-value">{{ done ? 'Done' : 'Pending' }}</text>
+    </div>
+
+    <div class="actions">
+      <text
+        if="!done"
+        class="action-btn action-btn--primary"
+        on:click="toggleDone"
+      >
+        Mark Done
+      </text>
+      <text
+        else
+        class="action-btn action-btn--secondary"
+        on:click="toggleDone"
+      >
+        Mark Pending
+      </text>
+    </div>
+  </div>
+</template>
+
+<style>
+.page {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  font-size: 1.6rem;
+  color: #e94560;
+  width: 40px;
+  text-align: center;
+}
+
+.header-title {
+  font-size: 1.1rem;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.card {
+  background-color: #16213e;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.task-title {
+  font-size: 1.2rem;
+  color: #ffffff;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.task-desc {
+  font-size: 0.9rem;
+  color: #aaaaaa;
+}
+
+.status-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #16213e;
+  border-radius: 12px;
+  padding: 14px 20px;
+  margin-bottom: 24px;
+}
+
+.status-label {
+  font-size: 0.9rem;
+  color: #888888;
+}
+
+.status-value {
+  font-size: 0.9rem;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.action-btn {
+  border-radius: 20px;
+  padding: 12px 32px;
+  font-size: 0.9rem;
+  text-align: center;
+  color: #ffffff;
+}
+
+.action-btn--primary {
+  background-color: #4caf50;
+}
+
+.action-btn--secondary {
+  background-color: #888888;
+}
+</style>
+
+<script lang="ts">
+import { defineComponent } from 'glyphix'
+import router from '@system.router'
+
+export default defineComponent({
+  data: {
+    // These fields are populated via router.push params
+    id: 0 as number,
+    title: '' as string,
+    description: '' as string,
+    done: false as boolean,
+  },
+
+  onDestroy() {
+    // Return the current done state to the Home page
+    router.close(this.$page, { done: this.done })
+  },
+
+  toggleDone() {
+    this.done = !this.done
+  },
+
+  goBack() {
+    router.back()
+  },
+})
+</script>

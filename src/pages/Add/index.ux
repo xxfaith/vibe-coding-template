@@ -1,0 +1,272 @@
+<template>
+  <scroll class="page">
+    <text class="page-title">New Task</text>
+
+    <!--
+      NOTE: Glyphix does not yet support a system IME / soft keyboard.
+      text-field is a native caret-based text display component — it does NOT pop up
+      any keyboard on tap. You must call insert(char) and backspace() on the element
+      programmatically to drive text input. The keyboard below is a custom in-app
+      implementation of this pattern.
+    -->
+    <text class="hint">Tap a field to select it, then type with the keyboard below.</text>
+
+    <!-- Title field — tap to make it active -->
+    <div class="field-section" on:click="focusTitle">
+      <text class="field-label">Title</text>
+      <div class="field-box">
+        <text if="activeField !== 'title'" class="field-dot field-dot--off"/>
+        <text if="activeField === 'title'" class="field-dot field-dot--on"/>
+        <text-field
+          id="titleField"
+          class="text-field"
+          ::value="title"
+          placeholder="Task name..."
+        />
+      </div>
+    </div>
+
+    <!-- Description field — tap to make it active -->
+    <div class="field-section" on:click="focusDesc">
+      <text class="field-label">Description</text>
+      <div class="field-box">
+        <text if="activeField !== 'description'" class="field-dot field-dot--off"/>
+        <text if="activeField === 'description'" class="field-dot field-dot--on"/>
+        <text-field
+          id="descField"
+          class="text-field"
+          ::value="description"
+          placeholder="Details..."
+        />
+      </div>
+    </div>
+
+    <!--
+      In-app keyboard — each key calls insert(char) on the active text-field.
+      The element reference is obtained via this.$element(id) in onReady().
+    -->
+    <div class="keyboard">
+      <div class="key-row" for="row in keyboardRows">
+        <text class="key" for="key in row" on:click="insertKey(key)">{{ key }}</text>
+      </div>
+      <div class="key-row">
+        <text class="key key--space" on:click="insertKey(' ')">SPACE</text>
+        <text class="key key--bs" on:click="doBackspace">×</text>
+      </div>
+    </div>
+
+    <div class="footer">
+      <text class="btn btn--cancel" on:click="cancel">Cancel</text>
+      <text class="btn btn--save" on:click="save">Save</text>
+    </div>
+  </scroll>
+</template>
+
+<style>
+.page {
+  padding: 14px;
+}
+
+.page-title {
+  font-size: 1.1rem;
+  color: #ffffff;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: #888888;
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.field-section {
+  margin-bottom: 10px;
+}
+
+.field-label {
+  font-size: 0.8rem;
+  color: #aaaaaa;
+  margin-bottom: 4px;
+  margin-left: 4px;
+}
+
+.field-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #16213e;
+  border-radius: 10px;
+  padding: 0 12px;
+  height: 44px;
+}
+
+/* Active-field indicator dot */
+.field-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.field-dot--off { background-color: #444444; }
+.field-dot--on  { background-color: #e94560; }
+
+.text-field {
+  flex: 1;
+  color: #ffffff;
+  font-size: 0.95rem;
+  height: 44px;
+}
+
+/* ── Keyboard ── */
+.keyboard {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.key-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.key {
+  flex: 1;
+  height: 28px;
+  background-color: #2a2a3e;
+  border-radius: 5px;
+  margin: 0 2px;
+  font-size: 0.7rem;
+  color: #ffffff;
+  text-align: center;
+}
+
+.key:active { opacity: 0.5; }
+
+.key--space { flex: 4; background-color: #333355; }
+.key--bs    { flex: 2; background-color: #442222; color: #ff6b6b; }
+
+/* ── Footer ── */
+.footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.btn {
+  width: 48%;
+  height: 44px;
+  border-radius: 22px;
+  font-size: 0.95rem;
+  text-align: center;
+  padding-top: 11px;
+}
+
+.btn--cancel { background-color: #333333; color: #ffffff; }
+.btn--save   { background-color: #e94560; color: #ffffff; }
+</style>
+
+<script lang="ts">
+import { defineComponent } from 'glyphix'
+import router from '@system.router'
+import prompt from '@system.prompt'
+
+export default defineComponent({
+  // Reactive state
+  data: {
+    title: '' as string,
+    description: '' as string,
+    activeField: 'title' as string,
+  },
+
+  // Non-reactive: native element references obtained in onReady()
+  // text-field exposes insert(char) and backspace() as element methods
+  titleFieldEl: null as any,
+  descFieldEl: null as any,
+
+  // Keyboard layout — non-reactive, never needs to trigger re-render
+  keyboardRows: [
+    ['q','w','e','r','t','y','u','i','o','p'],
+    ['a','s','d','f','g','h','j','k','l'],
+    ['z','x','c','v','b','n','m'],
+  ] as string[][],
+
+  onReady() {
+    // Obtain native element refs so we can call insert() / backspace() on them
+    this.titleFieldEl = this.$element('titleField')
+    this.descFieldEl  = this.$element('descField')
+  },
+
+  // ── Field focus ──
+  focusTitle() { this.activeField = 'title' },
+  focusDesc()  { this.activeField = 'description' },
+
+  _activeEl() {
+    return this.activeField === 'title' ? this.titleFieldEl : this.descFieldEl
+  },
+
+  // ── Keyboard handlers ──
+  insertKey(key: string) {
+    this._activeEl()?.insert(key)
+  },
+
+  doBackspace() {
+    this._activeEl()?.backspace()
+  },
+
+  // ── Navigation ──
+  cancel() {
+    router.back()
+  },
+
+  save() {
+    if (!this.title || this.title.trim().length === 0) {
+      prompt.showToast({ message: 'Title is required' })
+      return
+    }
+    router.close(this.$page, {
+      saved: true,
+      title: this.title.trim(),
+      description: this.description.trim(),
+    })
+  },
+})
+</script>
+    title: '' as string,
+    description: '' as string,
+  },
+
+  onTitleChange(evt: any) {
+    this.title = evt.detail.value
+  },
+
+  onDescChange(evt: any) {
+    this.description = evt.detail.value
+  },
+
+  cancel() {
+    router.back()
+  },
+
+  save() {
+    if (!this.title || this.title.trim().length === 0) {
+      prompt.showToast({ message: 'Title is required' })
+      return
+    }
+
+    // Return the new task data to the caller
+    router.close(this.$page, {
+      saved: true,
+      title: this.title,
+      description: this.description
+    })
+  },
+})
+</script>

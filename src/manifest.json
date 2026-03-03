@@ -1,0 +1,26 @@
+{
+  "package": "com.example.app",
+  "name": "Example App",
+  "icon": "/assets/icon.png",
+  "versionName": "1.0.0",
+  "versionCode": 1,
+  "features": [],
+  "permissions": [],
+  "config": {
+    "designWidth": 410
+  },
+  "router": {
+    "entry": "pages/Home",
+    "pages": {
+      "pages/Home": {
+        "component": "index"
+      },
+      "pages/Detail": {
+        "component": "index"
+      },
+      "pages/Add": {
+        "component": "index"
+      }
+    }
+  }
+}

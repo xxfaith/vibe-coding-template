@@ -1,0 +1,32 @@
+{
+  // Associate .ux files with HTML for syntax highlighting
+  "files.associations": {
+    "*.ux": "html"
+  },
+  // TypeScript: use workspace version
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  // Format on save
+  "editor.formatOnSave": true,
+  // Prettier: use single quotes for JS/TS
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  // Copilot: provide extra context for .ux files
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  // Search: exclude build artifacts
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.glyphix-work": true,
+    "**/dist": true
+  },
+  // File nesting
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "manifest.json": "manifest.json",
+    "*.ux": "${capture}.css, ${capture}.ts, ${capture}.js"
+  }
+}

@@ -1,0 +1,25 @@
+<template>
+  <p on:click="onClick">
+    Hello, world!<br>
+    You've clicked {{ count }} times.
+  </p>
+</template>
+
+<script lang="ts">
+import { defineComponent } from "glyphix"
+
+export default defineComponent({
+  data: {
+    count: 0
+  },
+  onClick() {
+    this.count++
+  },
+})
+</script>
+
+<style>
+p {
+  text-align: center;
+}
+</style>

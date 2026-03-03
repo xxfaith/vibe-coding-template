@@ -1,0 +1,74 @@
+<template>
+  <div class="field-container">
+    <text class="label">{{ label }}</text>
+    <div class="field-box">
+      <!--
+        text-field is Glyphix's native single-line text display component.
+        It supports cursor positioning via touch, and exposes insert(char) and
+        backspace() methods for programmatic input.
+
+        IMPORTANT: text-field does NOT pop up a system keyboard on tap. The
+        keyboard must be implemented in the parent page (see pages/Add/index.ux
+        for a full example).
+
+        Use ::value (two-way binding) to keep the value in sync with the parent:
+          - The native engine calls insert/backspace → text-field updates its text.
+          - The ::value binding propagates that change back to this.value automatically.
+      -->
+      <text-field
+        id="tf"
+        class="text-field"
+        ::value="value"
+        :placeholder="placeholder"
+      />
+    </div>
+  </div>
+</template>
+
+<style>
+.field-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: #aaaaaa;
+  margin-bottom: 6px;
+  margin-left: 4px;
+}
+
+.field-box {
+  background-color: #16213e;
+  border-radius: 12px;
+  padding: 0 16px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.text-field {
+  flex: 1;
+  color: #ffffff;
+  font-size: 1rem;
+  height: 48px;
+  background-color: transparent;
+}
+</style>
+
+<script lang="ts">
+import { defineComponent } from 'glyphix'
+
+export default defineComponent({
+  // Props are declared in data — the parent sets them as attributes.
+  data: {
+    label: '' as string,
+    // Two-way bound via ::value. When the parent calls insert()/backspace() on
+    // the element returned by $element(id), text-field updates and the binding
+    // propagates the new string back here automatically.
+    value: '' as string,
+    placeholder: '' as string,
+  },
+})
+</script>

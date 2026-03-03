@@ -1,0 +1,100 @@
+<template>
+  <div class="row task-cell" on:click="handleClick">
+    <div class="left">
+      <!-- Conditional class workaround -->
+      <div if="!done" class="dot"/>
+      <div if="done" class="dot dot--done"/>
+      
+      <div class="texts">
+        <text class="title" :class="done ? 'title--done' : ''">{{ title }}</text>
+        <text class="subtitle">{{ subtitle }}</text>
+      </div>
+    </div>
+    
+    <text class="meta">{{ time }}</text>
+  </div>
+</template>
+
+<style>
+.row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #16213e;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.task-cell {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex: 1; 
+  margin-right: 10px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #e94560;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.dot--done {
+  background-color: #4caf50;
+}
+
+.texts {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 0.95rem;
+  color: #e0e0e0;
+}
+
+.title--done {
+  color: #888888;
+  text-decoration: line-through;
+}
+
+.subtitle {
+  font-size: 0.8rem;
+  color: #666666;
+  margin-top: 2px;
+}
+
+.meta {
+  font-size: 0.75rem;
+  color: #888888;
+  flex-shrink: 0;
+}
+</style>
+
+<script lang="ts">
+import { defineComponent } from 'glyphix'
+
+export default defineComponent({
+  // Props from parent
+  data: {
+    id: 0 as number,
+    title: '' as string,
+    subtitle: '' as string,
+    time: '' as string,
+    done: false as boolean,
+  },
+
+  handleClick() {
+    this.$emit('click', { id: this.id })
+  },
+})
+</script>

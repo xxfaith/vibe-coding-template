@@ -1,0 +1,2 @@
+# Place image resources here (.png, .jpg, .webp).
+# Reference them in .ux: <image src="/assets/images/icon.png"/>
