@@ -8,11 +8,13 @@
   "main": "index.js",
   "scripts": {
     "build": "gx build",
-    "emu": "gx emu",
+    "emu": "gx build -ef && gx emu",
     "clean": "gx clean"
   },
   "devDependencies": {
+    "@types/node": "^25.6.0",
     "glyphix": "^1.2.9",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
 }

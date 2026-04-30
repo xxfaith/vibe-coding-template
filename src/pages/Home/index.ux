@@ -121,6 +121,7 @@ export default defineComponent({
   },
 
   onInit() {
+    console.info(process.env.GLYPHIX_USE_TEST === 'false' ? "Running in production mode" : "Running in test mode")
     this.loadItems()
   },
 
